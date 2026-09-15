@@ -14,7 +14,7 @@ export default function App() {
             <Stack.Navigator>
                 
                 <Stack.Screen
-                    name="Principal"
+                    name="HomeDrawer"
                     component={DrawerNavigator}
                     options={{
                         headerShown: false,
@@ -25,6 +25,7 @@ export default function App() {
                     name="ChestDetailScreen"
                     component={ChestDetailScreen}
                     options={{
+                        headerShown: true,
                         title: 'Rutina de Pecho',
                     }}
                 />
