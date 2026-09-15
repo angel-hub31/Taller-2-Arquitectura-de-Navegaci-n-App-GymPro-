@@ -11,7 +11,7 @@ export default function TabNavigator() {
         <Tab.Navigator
             screenOptions={({ route }) => ({
                 tabBarIcon: ({ focused, color, size }) => {
-                    let iconName: keyof typeof Ionicons.glyphMap = 'help'; // Valor por defecto
+                    let iconName: keyof typeof Ionicons.glyphMap = 'help';
 
                     if (route.name === 'Progreso') {
                         iconName = focused ? 'bar-chart' : 'bar-chart-outline';
