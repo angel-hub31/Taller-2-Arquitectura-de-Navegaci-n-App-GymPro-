@@ -28,14 +28,6 @@ export default function App() {
 
 
                     <Stack.Screen
-                        name="AddRoutine"
-                        component={AddRoutineScreen}
-                        options={{
-                            headerShown: true,
-                            title: 'Crear rutina',
-                        }}
-                    />
-                    <Stack.Screen
                         name="HomeDrawer"
                         component={DrawerNavigator}
                         options={{
@@ -49,6 +41,16 @@ export default function App() {
                         options={{
                             headerShown: true,
                             title: 'Rutina de Pecho',
+                        }}
+                    />
+
+                    
+                    <Stack.Screen
+                        name="AddRoutine"
+                        component={AddRoutineScreen}
+                        options={{
+                            headerShown: true,
+                            title: 'Crear rutina',
                         }}
                     />
 
