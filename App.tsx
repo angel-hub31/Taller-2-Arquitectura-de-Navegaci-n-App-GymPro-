@@ -31,7 +31,7 @@ export default function App() {
                         name="HomeDrawer"
                         component={DrawerNavigator}
                         options={{
-                            headerShown: false,
+                        title: ' Angel Morales'
                         }}
                     />
 

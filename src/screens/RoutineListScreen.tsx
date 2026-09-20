@@ -54,8 +54,25 @@ export default function RoutineListScreen() {
                 <TouchableOpacity onPress={() => confirmDelete(item.id, item.name)}>
                     <Ionicons name="trash-outline" size={24} color="#EF4444" style={styles.icon} />
                 </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={{
+                        backgroundColor: '#10B981', padding: 12, borderRadius:
+                            8, marginTop: 10
+                    }}
+                    onPress={() => Alert.alert("¡Éxito!", "Has iniciado la rutinade entrenamiento.")}
+                >
+                    <Text style={{
+                        color: '#FFF', textAlign: 'center', fontWeight:
+                            'bold'
+                    }}>Comenzar Rutina</Text>
+                </TouchableOpacity>
+
+
+
+
             </View>
-        </View>
+        </View >
     );
 
     return (
@@ -79,6 +96,8 @@ export default function RoutineListScreen() {
             >
                 <Ionicons name="add" size={30} color="#FFFFFF" />
             </TouchableOpacity>
+
+
         </SafeAreaView>
     );
 }
