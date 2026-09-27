@@ -29,15 +29,21 @@ export default function AddRoutineScreen({ navigation, route }: any) {
 
     const handleSave = () => {
         if (!name.trim() || !muscleGroup.trim() || !durationString.trim()) {
-            Alert.alert('Datos incompletos', "Todos los campos son obligatorios");
+            Alert.alert('Datos incompletos', "Todos los campos son obligatorios.");
             return;
-
         }
+
         const durationNumber = parseFloat(durationString);
         if (isNaN(durationNumber)) {
             Alert.alert('Error', "La duración debe ser un número valido");
             return;
         }
+
+        if (durationNumber < 10 || durationNumber > 180) {
+            Alert.alert('Duración inválida', "La duración debe estar entre 10 y 180 minutos.");
+            return;
+        }
+        
         if (idToEdit) {
             updateRoutine(idToEdit, {
                 name: name.trim(),
