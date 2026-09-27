@@ -1,5 +1,5 @@
-import React from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, FlatList, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { Text, View, StyleSheet, TouchableOpacity, FlatList, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,7 +7,10 @@ import { useRoutines } from '../context/RoutineContext';
 
 export default function RoutineListScreen() {
     const navigation = useNavigation<any>();
-    const { routines, deleteRoutine } = useRoutines();
+    const { routines, deleteRoutine, toggleFeatured } = useRoutines();
+
+    const [selectedFilter, setSelectedFilter] = useState('Todos');
+    const filterOptions = ['Todos', 'Pecho', 'Espalda', 'Piernas'];
 
     const confirmDelete = (id: string, name: string) => {
         Alert.alert(
@@ -24,6 +27,11 @@ export default function RoutineListScreen() {
         );
     };
 
+    const filteredRoutines = selectedFilter === 'Todos'
+        ? routines
+        : routines.filter(r => r.muscleGroup.trim().toLowerCase() === selectedFilter.toLowerCase());
+
+
     const renderItem = ({ item }: { item: any }) => (
         <View style={styles.card}>
             {/* Fila Superior: Información e Iconos */}
@@ -36,22 +44,33 @@ export default function RoutineListScreen() {
                 </View>
 
                 <View style={styles.iconRow}>
-                    <TouchableOpacity 
-                        style={styles.iconButton} 
+                    <TouchableOpacity
+                        style={styles.iconButton}
+                        onPress={() => toggleFeatured(item.id)}
+                    >
+                        <Ionicons
+                            name={item.featured ? "star" : "star-outline"}
+                            size={22}
+                            color="#F59E0B"
+                        />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.iconButton}
                         onPress={() => navigation.navigate('AddRoutine', { id: item.id })}
                     >
                         <Ionicons name="pencil-outline" size={22} color="#F59E0B" />
                     </TouchableOpacity>
 
-                    <TouchableOpacity 
-                        style={styles.iconButton} 
+                    <TouchableOpacity
+                        style={styles.iconButton}
                         onPress={() => navigation.navigate('Detail', { id: item.id })}
                     >
                         <Ionicons name="eye-outline" size={22} color="#3B82F6" />
                     </TouchableOpacity>
 
-                    <TouchableOpacity 
-                        style={styles.iconButton} 
+                    <TouchableOpacity
+                        style={styles.iconButton}
                         onPress={() => confirmDelete(item.id, item.name)}
                     >
                         <Ionicons name="trash-outline" size={22} color="#EF4444" />
@@ -76,8 +95,31 @@ export default function RoutineListScreen() {
                 <Text style={styles.subtitle}>Selecciona un grupo muscular</Text>
             </View>
 
+            <View style={styles.filterContainer}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
+                    {filterOptions.map((filter) => (
+                        <TouchableOpacity
+                            key={filter}
+                            style={[
+                                styles.filterChip,
+                                selectedFilter === filter && styles.filterChipActive
+                            ]}
+                            onPress={() => setSelectedFilter(filter)}
+                        >
+                            <Text style={[
+                                styles.filterText,
+                                selectedFilter === filter && styles.filterTextActive
+                            ]}>
+                                {filter}
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+            </View>
+
+            {/* Se cambió 'routines' por 'filteredRoutines' para que el filtro funcione */}
             <FlatList
-                data={routines}
+                data={filteredRoutines}
                 keyExtractor={(item) => item.id}
                 renderItem={renderItem}
                 contentContainerStyle={styles.listContent}
@@ -97,12 +139,12 @@ export default function RoutineListScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F3F4F6', // Un gris muy sutil para destacar las tarjetas blancas
+        backgroundColor: '#F3F4F6',
     },
     headerContainer: {
         paddingHorizontal: 20,
         paddingTop: 20,
-        paddingBottom: 10,
+        paddingBottom: 5,
     },
     headerTitle: {
         fontSize: 32,
@@ -115,9 +157,36 @@ const styles = StyleSheet.create({
         color: '#6B7280',
         marginBottom: 10,
     },
+    filterContainer: {
+        marginBottom: 15,
+    },
+    filterScroll: {
+        paddingHorizontal: 20,
+        gap: 8,
+    },
+    filterChip: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+    },
+    filterChipActive: {
+        backgroundColor: '#FF6347',
+        borderColor: '#FF6347',
+    },
+    filterText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#4B5563',
+    },
+    filterTextActive: {
+        color: '#FFFFFF',
+    },
     listContent: {
         paddingHorizontal: 20,
-        paddingBottom: 80, // Espacio extra para que el FAB no tape la última tarjeta
+        paddingBottom: 80,
     },
     card: {
         backgroundColor: '#FFFFFF',
@@ -154,7 +223,7 @@ const styles = StyleSheet.create({
     },
     iconRow: {
         flexDirection: 'row',
-        gap: 8, // Espaciado moderno entre iconos
+        gap: 6,
     },
     iconButton: {
         padding: 6,

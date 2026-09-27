@@ -11,12 +11,15 @@ export type Routine = {
     featured: boolean;
 }
  interface RoutineContextData{
+    
     routines: Routine[];
     addRoutine: (routine: Omit<Routine, 'id' | 'createdAt' | 'featured'>) => Promise<void>;
     updateRoutine: (id: string, routine: Partial<Routine>) => Promise<void>;
     deleteRoutine: (id: string) => Promise<void>;
     toggleFeatured: (id: string) => Promise<void>;
  }
+
+ const RoutineContext = createContext<RoutineContextData | undefined>(undefined);
 
 
 export const RoutineProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

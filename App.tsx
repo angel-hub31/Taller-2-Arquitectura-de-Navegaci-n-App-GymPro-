@@ -31,20 +31,17 @@ export default function App() {
                         name="HomeDrawer"
                         component={DrawerNavigator}
                         options={{
-                        title: ' Angel Morales'
+                            title: ' Angel Morales'
                         }}
                     />
 
                     <Stack.Screen
                         name="Detail"
                         component={RoutineDetailScreen}
-                        options={{
-                            headerShown: true,
-                            title: 'Rutina de Pecho',
-                        }}
+                        options={{ headerShown: true, title: 'Detalle de Rutina' }}
                     />
 
-                    
+
                     <Stack.Screen
                         name="AddRoutine"
                         component={AddRoutineScreen}

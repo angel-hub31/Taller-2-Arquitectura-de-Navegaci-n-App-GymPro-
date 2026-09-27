@@ -6,18 +6,19 @@ import { useRoutines } from '../context/RoutineContext';
 
 export default function ProgressScreen() {
 
-    const { routines } = useRoutines();
+    const { routines,deleteRoutine, toggleFeatured } = useRoutines();
 
     const totalRoutines = routines.length;
     const totalDuration = routines.reduce((acc, curr) => acc + (Number(curr.duration) || 0), 0);
     const averageDuration = totalRoutines > 0 ? Math.round(totalDuration / totalRoutines) : 0;
 
     const getTopMuscleGroup = () => {
+
         if (routines.length === 0) return 'Ninguno';
         const counts: { [key: string]: number } = {};
         routines.forEach(r => {
             const group = r.muscleGroup.trim();
-            counts[group] = (counts[group] || 0) + 1; 
+            counts[group] = (counts[group] || 0) + 1;
         });
         let topGroup = 'Ninguno';
         let maxCount = 0;
@@ -30,17 +31,17 @@ export default function ProgressScreen() {
         return topGroup;
     };
 
-const featuredRoutine = routines.find(r => r.featured);
+    const featuredRoutine = routines.find(r => r.featured);
 
-const STATS = [
-    { id: '1', title: 'Entrenamientos', value: '4/5', icon: 'barbell', color: '#FF6347' },
-    { id: '2', title: 'Racha Actual', value: '3 Días', icon: 'flame', color: '#FF8C00' },
-    { id: '3', title: 'Tiempo Total', value: '180 min', icon: 'time', color: '#4682B4' },
-    { id: '4', title: 'Volumen', value: '3200 kg', icon: 'analytics', color: '#32CD32' },
-];
+    const STATS = [
+        { id: '1', title: 'Entrenamientos', value: '4/5', icon: 'barbell', color: '#FF6347' },
+        { id: '2', title: 'Racha Actual', value: '3 Días', icon: 'flame', color: '#FF8C00' },
+        { id: '3', title: 'Tiempo Total', value: '180 min', icon: 'time', color: '#4682B4' },
+        { id: '4', title: 'Volumen', value: '3200 kg', icon: 'analytics', color: '#32CD32' },
+    ];
 
 
-return (
+    return (
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollContent}>
 
@@ -56,7 +57,7 @@ return (
                     {featuredRoutine ? (
                         <View>
                             <Text style={styles.featuredRoutineName}>{featuredRoutine.name}</Text>
-                            <Text style={styles.featuredRoutineDetails}>💪 {featuredRoutine.muscleGroup}  •  ⏱️ {featuredRoutine.duration} min</Text>
+                            <Text style={styles.featuredRoutineDetails}> {featuredRoutine.muscleGroup}  •  ⏱️ {featuredRoutine.duration} min</Text>
                         </View>
                     ) : (
                         <Text style={styles.noFeaturedText}>No hay ninguna rutina marcada como destacada.</Text>
