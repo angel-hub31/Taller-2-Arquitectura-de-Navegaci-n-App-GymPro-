@@ -1,12 +1,31 @@
-import { useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
 
-import { useRoutines } from "../context/RoutineContext";
-import { useState } from "react";
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+} from 'react-native';
 
+import { Ionicons } from '@expo/vector-icons';
 
-export default function AddRoutineScreen({ navigation, route }: any) {
-    const { addRoutine, updateRoutine, routines } = useRoutines();
+import { useRoutines } from '../context/RoutineContext';
+
+export default function AddRoutineScreen({
+    navigation,
+    route,
+}: any) {
+
+    const {
+        routines,
+        addRoutine,
+        updateRoutine,
+    } = useRoutines();
 
     const idToEdit = route.params?.id;
 
@@ -15,171 +34,397 @@ export default function AddRoutineScreen({ navigation, route }: any) {
     const [durationString, setDurationString] = useState('');
 
     useEffect(() => {
-        if (idToEdit) {
-            const routineFound = routines.find(routines => routines.id === idToEdit);
-            if (routineFound) {
-                setName(routineFound.name);
-                setMuscleGroup(routineFound.muscleGroup);
-                setDurationString(routineFound.duration.toString());
+
+        if (!idToEdit) {
+            return;
+        }
+
+        const routine = routines.find(
+            (item) => item.id === idToEdit
+        );
+
+        if (routine) {
+            setName(routine.name);
+            setMuscleGroup(routine.muscleGroup);
+            setDurationString(
+                routine.duration.toString()
+            );
+        }
+
+    }, [idToEdit, routines]);
+
+    const handleSave = async () => {
+
+        if (!name.trim()) {
+            Alert.alert(
+                'Campo obligatorio',
+                'Ingresa el nombre de la rutina.'
+            );
+            return;
+        }
+
+        if (!muscleGroup.trim()) {
+            Alert.alert(
+                'Campo obligatorio',
+                'Ingresa el grupo muscular.'
+            );
+            return;
+        }
+
+        if (!durationString.trim()) {
+            Alert.alert(
+                'Campo obligatorio',
+                'Ingresa la duración.'
+            );
+            return;
+        }
+
+        const duration = Number(durationString);
+
+        if (isNaN(duration)) {
+            Alert.alert(
+                'Duración inválida',
+                'La duración debe ser un número.'
+            );
+            return;
+        }
+
+        if (duration < 10 || duration > 180) {
+            Alert.alert(
+                'Duración inválida',
+                'La duración debe estar entre 10 y 180 minutos.'
+            );
+            return;
+        }
+
+        try {
+
+            if (idToEdit) {
+
+                await updateRoutine(idToEdit, {
+                    name: name.trim(),
+                    muscleGroup: muscleGroup.trim(),
+                    duration,
+                });
+
+                Alert.alert(
+                    'Rutina actualizada',
+                    'Los cambios se guardaron correctamente.'
+                );
+
+            } else {
+
+                await addRoutine({
+                    name: name.trim(),
+                    muscleGroup: muscleGroup.trim(),
+                    duration,
+                });
+
+                Alert.alert(
+                    'Rutina creada',
+                    'La rutina se agregó correctamente.'
+                );
             }
-        }
 
-    },
-        [idToEdit, routines]);
+            navigation.goBack();
 
-    const handleSave = () => {
-        if (!name.trim() || !muscleGroup.trim() || !durationString.trim()) {
-            Alert.alert('Datos incompletos', "Todos los campos son obligatorios.");
-            return;
-        }
-
-        const durationNumber = parseFloat(durationString);
-        if (isNaN(durationNumber)) {
-            Alert.alert('Error', "La duración debe ser un número valido");
-            return;
-        }
-
-        if (durationNumber < 10 || durationNumber > 180) {
-            Alert.alert('Duración inválida', "La duración debe estar entre 10 y 180 minutos.");
-            return;
-        }
-
-        if (idToEdit) {
-            updateRoutine(idToEdit, {
-                name: name.trim(),
-                muscleGroup: muscleGroup.trim(),
-                duration: durationNumber
-            });
+        } catch (error) {
 
             Alert.alert(
-                "¡Actualizado!",
-                "La rutina se actualizó correctamente.",
-                [{ text: "Entendido", onPress: () => navigation.goBack() }]
+                'Error',
+                'No fue posible guardar la rutina.'
             );
 
-        } else {
-            addRoutine({
-                name: name.trim(),
-                muscleGroup: muscleGroup.trim(),
-                duration: durationNumber
-            });
-
-            Alert.alert(
-                "!EXITO", "La nueva rutina se creó exitosamente",
-                [
-                    {
-                        text: "Entendido",
-                        onPress: () => navigation.goBack()
-                    }
-                ]
-            )
         }
-
-    }
+    };
 
     return (
+
         <KeyboardAvoidingView
             style={styles.container}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            behavior={
+                Platform.OS === 'ios'
+                    ? 'padding'
+                    : undefined
+            }
         >
-            <ScrollView contentContainerStyle={styles.scrollContent}>
 
-                <Text style={styles.headerTitle}>
-                    {idToEdit ? "Editar Rutina" : "Nueva Rutina"}
-                </Text>
+            <ScrollView
+                contentContainerStyle={styles.content}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+            >
 
-                <View style={styles.formCard}>
-                    <Text style={styles.label}>Nombre de la rutina</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Ej: Pecho y Tríceps"
-                        placeholderTextColor="#A1A1AA"
-                        value={name}
-                        onChangeText={setName}
-                    />
+                {/* ENCABEZADO */}
+                <View style={styles.header}>
 
-                    <Text style={styles.label}>Grupo Muscular</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Ej: Pecho"
-                        placeholderTextColor="#A1A1AA"
-                        value={muscleGroup}
-                        onChangeText={setMuscleGroup}
-                    />
+                    <View style={styles.headerIcon}>
+                        <Ionicons
+                            name={
+                                idToEdit
+                                    ? 'create-outline'
+                                    : 'add'
+                            }
+                            size={28}
+                            color="#C69C6D"
+                        />
+                    </View>
 
-                    <Text style={styles.label}>Duración (minutos)</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Ej: 45"
-                        placeholderTextColor="#A1A1AA"
-                        value={durationString}
-                        onChangeText={setDurationString}
-                        keyboardType="numeric"
-                    />
+                    <View style={styles.headerText}>
+                        <Text style={styles.smallTitle}>
+                            {idToEdit
+                                ? 'ACTUALIZAR'
+                                : 'NUEVO ENTRENAMIENTO'}
+                        </Text>
 
-                    <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                        <Text style={styles.saveButtonText}>Guardar Rutina</Text>
-                    </TouchableOpacity>
+                        <Text style={styles.title}>
+                            {idToEdit
+                                ? 'Editar rutina'
+                                : 'Crear rutina'}
+                        </Text>
+                    </View>
+
                 </View>
 
+                {/* FORMULARIO */}
+                <View style={styles.formCard}>
+
+                    {/* NOMBRE */}
+                    <View style={styles.inputGroup}>
+
+                        <Text style={styles.label}>
+                            Nombre de la rutina
+                        </Text>
+
+                        <View style={styles.inputContainer}>
+
+                            <Ionicons
+                                name="fitness-outline"
+                                size={20}
+                                color="#9AA3AB"
+                            />
+
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Ej. Entrenamiento de pecho"
+                                placeholderTextColor="#AAB1B7"
+                                value={name}
+                                onChangeText={setName}
+                            />
+
+                        </View>
+
+                    </View>
+
+                    {/* GRUPO MUSCULAR */}
+                    <View style={styles.inputGroup}>
+
+                        <Text style={styles.label}>
+                            Grupo muscular
+                        </Text>
+
+                        <View style={styles.inputContainer}>
+
+                            <Ionicons
+                                name="body-outline"
+                                size={20}
+                                color="#9AA3AB"
+                            />
+
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Ej. Pecho"
+                                placeholderTextColor="#AAB1B7"
+                                value={muscleGroup}
+                                onChangeText={setMuscleGroup}
+                            />
+
+                        </View>
+
+                    </View>
+
+                    {/* DURACIÓN */}
+                    <View style={styles.inputGroup}>
+
+                        <Text style={styles.label}>
+                            Duración
+                        </Text>
+
+                        <View style={styles.inputContainer}>
+
+                            <Ionicons
+                                name="time-outline"
+                                size={20}
+                                color="#9AA3AB"
+                            />
+
+                            <TextInput
+                                style={styles.input}
+                                placeholder="10 - 180 minutos"
+                                placeholderTextColor="#AAB1B7"
+                                value={durationString}
+                                onChangeText={setDurationString}
+                                keyboardType="numeric"
+                            />
+
+                            <Text style={styles.unit}>
+                                min
+                            </Text>
+
+                        </View>
+
+                        <Text style={styles.helper}>
+                            La duración permitida es de 10 a 180 minutos.
+                        </Text>
+
+                    </View>
+
+                </View>
+
+                {/* BOTÓN */}
+                <TouchableOpacity
+                    style={styles.saveButton}
+                    activeOpacity={0.85}
+                    onPress={handleSave}
+                >
+
+                    <Ionicons
+                        name={
+                            idToEdit
+                                ? 'checkmark-circle-outline'
+                                : 'add-circle-outline'
+                        }
+                        size={22}
+                        color="#FFFFFF"
+                    />
+
+                    <Text style={styles.saveButtonText}>
+                        {idToEdit
+                            ? 'Guardar cambios'
+                            : 'Crear rutina'}
+                    </Text>
+
+                </TouchableOpacity>
+
             </ScrollView>
+
         </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
+
     container: {
         flex: 1,
-        backgroundColor: '#e7f3f5', // Fondo igual a tus otras pantallas
+        backgroundColor: '#F5F7FA',
     },
-    scrollContent: {
+
+    content: {
         padding: 20,
+        paddingBottom: 40,
     },
-    headerTitle: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#18181B',
-        marginBottom: 20,
+
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 22,
     },
+
+    headerIcon: {
+        width: 57,
+        height: 57,
+        borderRadius: 19,
+        backgroundColor: '#17202A',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    headerText: {
+        marginLeft: 14,
+    },
+
+    smallTitle: {
+        fontSize: 10,
+        fontWeight: '800',
+        letterSpacing: 1.2,
+        color: '#C69C6D',
+    },
+
+    title: {
+        fontSize: 27,
+        fontWeight: '900',
+        color: '#17202A',
+        marginTop: 2,
+    },
+
     formCard: {
         backgroundColor: '#FFFFFF',
+        borderRadius: 23,
         padding: 20,
-        borderRadius: 16,
-        // Sombras para iOS
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        // Sombra para Android
-        elevation: 2,
+        elevation: 3,
+        shadowOpacity: 0.06,
+        shadowRadius: 7,
     },
+
+    inputGroup: {
+        marginBottom: 20,
+    },
+
     label: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: '#3F3F46',
+        color: '#17202A',
+        fontSize: 13,
+        fontWeight: '800',
         marginBottom: 8,
     },
-    input: {
-        backgroundColor: '#F4F4F5',
-        borderRadius: 12,
-        padding: 14,
-        fontSize: 16,
-        color: '#18181B',
-        marginBottom: 20,
+
+    inputContainer: {
+        height: 54,
+        borderRadius: 16,
+        backgroundColor: '#F5F7FA',
         borderWidth: 1,
-        borderColor: '#E4E4E7',
-    },
-    saveButton: {
-        backgroundColor: '#FF6347',
-        paddingVertical: 16,
-        borderRadius: 12,
+        borderColor: '#E3E7EA',
+        flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 10,
+        paddingHorizontal: 14,
     },
+
+    input: {
+        flex: 1,
+        marginLeft: 10,
+        color: '#17202A',
+        fontSize: 14,
+    },
+
+    unit: {
+        color: '#8A949E',
+        fontSize: 12,
+        fontWeight: '700',
+    },
+
+    helper: {
+        color: '#8A949E',
+        fontSize: 11,
+        marginTop: 7,
+    },
+
+    saveButton: {
+        height: 58,
+        borderRadius: 19,
+        backgroundColor: '#17202A',
+        marginTop: 20,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 5,
+        shadowOpacity: 0.12,
+        shadowRadius: 7,
+    },
+
     saveButtonText: {
         color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 15,
+        fontWeight: '800',
+        marginLeft: 9,
     },
-});
 
+});

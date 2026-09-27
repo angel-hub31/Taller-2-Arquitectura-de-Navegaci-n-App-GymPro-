@@ -1,267 +1,569 @@
 import React, { useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, FlatList, Alert, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+
+import {
+    View,
+    Text,
+    StyleSheet,
+    FlatList,
+    TouchableOpacity,
+    Alert,
+} from 'react-native';
+
 import { Ionicons } from '@expo/vector-icons';
+
 import { useRoutines } from '../context/RoutineContext';
 
-export default function RoutineListScreen() {
-    const navigation = useNavigation<any>();
-    const { routines, deleteRoutine, toggleFeatured } = useRoutines();
+export default function RoutineListScreen({ navigation }: any) {
 
-    const [selectedFilter, setSelectedFilter] = useState('Todos');
-    const filterOptions = ['Todos', 'Pecho', 'Espalda', 'Piernas'];
+    const {
+        routines,
+        deleteRoutine,
+        toggleFeatured,
+    } = useRoutines();
 
-    const confirmDelete = (id: string, name: string) => {
+    const [selectedFilter, setSelectedFilter] =
+        useState('Todos');
+
+    const filters = [
+        'Todos',
+        'Pecho',
+        'Espalda',
+        'Piernas',
+    ];
+
+    const filteredRoutines = routines.filter((routine) => {
+
+        if (selectedFilter === 'Todos') {
+            return true;
+        }
+
+        return (
+            routine.muscleGroup.toLowerCase() ===
+            selectedFilter.toLowerCase()
+        );
+    });
+
+    const handleDelete = (id: string, name: string) => {
+
         Alert.alert(
-            "Eliminar rutina",
-            `¿Estás seguro de que deseas eliminar "${name}"?`,
+            'Eliminar rutina',
+            `¿Deseas eliminar "${name}"?`,
             [
-                { text: "Cancelar", style: "cancel" },
                 {
-                    text: "Eliminar",
-                    style: "destructive",
+                    text: 'Cancelar',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Eliminar',
+                    style: 'destructive',
                     onPress: () => deleteRoutine(id),
                 },
             ]
         );
     };
 
-    const filteredRoutines = selectedFilter === 'Todos'
-        ? routines
-        : routines.filter(r => r.muscleGroup.trim().toLowerCase() === selectedFilter.toLowerCase());
+    const renderRoutine = ({ item }: any) => (
 
-
-    const renderItem = ({ item }: { item: any }) => (
         <View style={styles.card}>
-            {/* Fila Superior: Información e Iconos */}
+
             <View style={styles.cardHeader}>
-                <View style={styles.cardTextContainer}>
-                    <Text style={styles.cardTitle}>{item.name}</Text>
-                    <Text style={styles.cardSubtitle}>
-                        {item.muscleGroup} • {item.duration} min
+
+                <View style={styles.iconContainer}>
+                    <Ionicons
+                        name="barbell-outline"
+                        size={25}
+                        color="#C69C6D"
+                    />
+                </View>
+
+                <View style={styles.titleContainer}>
+
+                    <Text
+                        style={styles.routineName}
+                        numberOfLines={1}
+                    >
+                        {item.name}
                     </Text>
+
+                    <Text style={styles.muscleGroup}>
+                        {item.muscleGroup}
+                    </Text>
+
                 </View>
 
-                <View style={styles.iconRow}>
-                    <TouchableOpacity
-                        style={styles.iconButton}
-                        onPress={() => toggleFeatured(item.id)}
-                    >
-                        <Ionicons
-                            name={item.featured ? "star" : "star-outline"}
-                            size={22}
-                            color="#F59E0B"
-                        />
-                    </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.starButton}
+                    onPress={() => toggleFeatured(item.id)}
+                >
+                    <Ionicons
+                        name={
+                            item.featured
+                                ? 'star'
+                                : 'star-outline'
+                        }
+                        size={25}
+                        color="#C69C6D"
+                    />
+                </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={styles.iconButton}
-                        onPress={() => navigation.navigate('AddRoutine', { id: item.id })}
-                    >
-                        <Ionicons name="pencil-outline" size={22} color="#F59E0B" />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={styles.iconButton}
-                        onPress={() => navigation.navigate('Detail', { id: item.id })}
-                    >
-                        <Ionicons name="eye-outline" size={22} color="#3B82F6" />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={styles.iconButton}
-                        onPress={() => confirmDelete(item.id, item.name)}
-                    >
-                        <Ionicons name="trash-outline" size={22} color="#EF4444" />
-                    </TouchableOpacity>
-                </View>
             </View>
 
-            {/* Fila Inferior: Botón Principal */}
-            <TouchableOpacity
-                style={styles.startButton}
-                onPress={() => Alert.alert("¡Éxito!", "Has iniciado la rutina de entrenamiento.")}
-            >
-                <Text style={styles.startButtonText}>Comenzar Rutina</Text>
-            </TouchableOpacity>
+            <View style={styles.infoRow}>
+
+                <View style={styles.infoItem}>
+
+                    <Ionicons
+                        name="time-outline"
+                        size={17}
+                        color="#7B8794"
+                    />
+
+                    <Text style={styles.infoText}>
+                        {item.duration} min
+                    </Text>
+
+                </View>
+
+                <View style={styles.infoItem}>
+
+                    <Ionicons
+                        name="calendar-outline"
+                        size={17}
+                        color="#7B8794"
+                    />
+
+                    <Text style={styles.infoText}>
+                        {item.createdAt}
+                    </Text>
+
+                </View>
+
+            </View>
+
+            <View style={styles.separator} />
+
+            <View style={styles.actions}>
+
+                <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() =>
+                        navigation.navigate('Detail', {
+                            id: item.id,
+                        })
+                    }
+                >
+                    <Ionicons
+                        name="eye-outline"
+                        size={18}
+                        color="#17202A"
+                    />
+
+                    <Text style={styles.actionText}>
+                        Ver
+                    </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() =>
+                        navigation.navigate('AddRoutine', {
+                            id: item.id,
+                        })
+                    }
+                >
+                    <Ionicons
+                        name="create-outline"
+                        size={18}
+                        color="#17202A"
+                    />
+
+                    <Text style={styles.actionText}>
+                        Editar
+                    </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[
+                        styles.actionButton,
+                        styles.deleteButton,
+                    ]}
+                    onPress={() =>
+                        handleDelete(item.id, item.name)
+                    }
+                >
+                    <Ionicons
+                        name="trash-outline"
+                        size={18}
+                        color="#B44A4A"
+                    />
+
+                    <Text style={styles.deleteText}>
+                        Eliminar
+                    </Text>
+                </TouchableOpacity>
+
+            </View>
+
         </View>
     );
 
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.headerContainer}>
-                <Text style={styles.headerTitle}>Mis Rutinas</Text>
-                <Text style={styles.subtitle}>Selecciona un grupo muscular</Text>
+
+        <View style={styles.container}>
+
+            {/* ENCABEZADO */}
+            <View style={styles.header}>
+
+                <View>
+                    <Text style={styles.headerSmall}>
+                        ENTRENAMIENTO
+                    </Text>
+
+                    <Text style={styles.headerTitle}>
+                        Mis rutinas
+                    </Text>
+                </View>
+
+                <View style={styles.counter}>
+                    <Text style={styles.counterNumber}>
+                        {routines.length}
+                    </Text>
+
+                    <Text style={styles.counterText}>
+                        rutinas
+                    </Text>
+                </View>
+
             </View>
 
-            <View style={styles.filterContainer}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
-                    {filterOptions.map((filter) => (
+            {/* FILTROS */}
+            <View style={styles.filterSection}>
+
+                <Text style={styles.filterTitle}>
+                    Filtrar por grupo
+                </Text>
+
+                <FlatList
+                    data={filters}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    keyExtractor={(item) => item}
+                    renderItem={({ item }) => (
+
                         <TouchableOpacity
-                            key={filter}
                             style={[
-                                styles.filterChip,
-                                selectedFilter === filter && styles.filterChipActive
+                                styles.filterButton,
+                                selectedFilter === item &&
+                                styles.filterButtonActive,
                             ]}
-                            onPress={() => setSelectedFilter(filter)}
+                            onPress={() =>
+                                setSelectedFilter(item)
+                            }
                         >
-                            <Text style={[
-                                styles.filterText,
-                                selectedFilter === filter && styles.filterTextActive
-                            ]}>
-                                {filter}
+
+                            <Text
+                                style={[
+                                    styles.filterText,
+                                    selectedFilter === item &&
+                                    styles.filterTextActive,
+                                ]}
+                            >
+                                {item}
                             </Text>
+
                         </TouchableOpacity>
-                    ))}
-                </ScrollView>
+                    )}
+                />
+
             </View>
 
-            {/* Se cambió 'routines' por 'filteredRoutines' para que el filtro funcione */}
+            {/* LISTA */}
             <FlatList
                 data={filteredRoutines}
                 keyExtractor={(item) => item.id}
-                renderItem={renderItem}
-                contentContainerStyle={styles.listContent}
+                renderItem={renderRoutine}
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.list}
+                ListEmptyComponent={
+
+                    <View style={styles.emptyContainer}>
+
+                        <View style={styles.emptyIcon}>
+                            <Ionicons
+                                name="fitness-outline"
+                                size={42}
+                                color="#C69C6D"
+                            />
+                        </View>
+
+                        <Text style={styles.emptyTitle}>
+                            No hay rutinas
+                        </Text>
+
+                        <Text style={styles.emptyText}>
+                            Crea tu primera rutina para comenzar
+                            a organizar tus entrenamientos.
+                        </Text>
+
+                    </View>
+                }
             />
 
+            {/* BOTÓN AGREGAR */}
             <TouchableOpacity
                 style={styles.fab}
-                onPress={() => navigation.navigate('AddRoutine')}
+                activeOpacity={0.8}
+                onPress={() =>
+                    navigation.navigate('AddRoutine')
+                }
             >
-                <Ionicons name="add" size={30} color="#FFFFFF" />
+                <Ionicons
+                    name="add"
+                    size={31}
+                    color="#FFFFFF"
+                />
             </TouchableOpacity>
-        </SafeAreaView>
+
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
+
     container: {
         flex: 1,
-        backgroundColor: '#F3F4F6',
+        backgroundColor: '#F5F7FA',
     },
-    headerContainer: {
+
+    header: {
         paddingHorizontal: 20,
-        paddingTop: 20,
-        paddingBottom: 5,
+        paddingTop: 18,
+        paddingBottom: 14,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
-    headerTitle: {
-        fontSize: 32,
+
+    headerSmall: {
+        fontSize: 11,
+        color: '#C69C6D',
         fontWeight: '800',
-        color: '#111827',
-        marginBottom: 4,
+        letterSpacing: 1.3,
     },
-    subtitle: {
-        fontSize: 16,
-        color: '#6B7280',
-        marginBottom: 10,
+
+    headerTitle: {
+        fontSize: 28,
+        color: '#17202A',
+        fontWeight: '900',
+        marginTop: 3,
     },
-    filterContainer: {
-        marginBottom: 15,
+
+    counter: {
+        backgroundColor: '#17202A',
+        borderRadius: 17,
+        paddingHorizontal: 14,
+        paddingVertical: 9,
+        alignItems: 'center',
     },
-    filterScroll: {
-        paddingHorizontal: 20,
-        gap: 8,
+
+    counterNumber: {
+        color: '#FFFFFF',
+        fontSize: 18,
+        fontWeight: '900',
     },
-    filterChip: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        backgroundColor: '#FFFFFF',
+
+    counterText: {
+        color: '#C5CBD0',
+        fontSize: 10,
+    },
+
+    filterSection: {
+        paddingLeft: 20,
+        marginBottom: 5,
+    },
+
+    filterTitle: {
+        color: '#687580',
+        fontSize: 13,
+        fontWeight: '700',
+        marginBottom: 9,
+    },
+
+    filterButton: {
+        paddingHorizontal: 18,
+        paddingVertical: 9,
         borderRadius: 20,
+        backgroundColor: '#FFFFFF',
+        marginRight: 8,
         borderWidth: 1,
-        borderColor: '#E5E7EB',
+        borderColor: '#E2E6EA',
     },
-    filterChipActive: {
-        backgroundColor: '#FF6347',
-        borderColor: '#FF6347',
+
+    filterButtonActive: {
+        backgroundColor: '#17202A',
+        borderColor: '#17202A',
     },
+
     filterText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#4B5563',
+        color: '#687580',
+        fontWeight: '700',
+        fontSize: 13,
     },
+
     filterTextActive: {
         color: '#FFFFFF',
     },
-    listContent: {
-        paddingHorizontal: 20,
-        paddingBottom: 80,
+
+    list: {
+        padding: 20,
+        paddingBottom: 100,
     },
+
     card: {
         backgroundColor: '#FFFFFF',
-        borderRadius: 20,
-        padding: 20,
-        marginBottom: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 3,
+        borderRadius: 22,
+        padding: 17,
+        marginBottom: 14,
+        elevation: 4,
+        shadowOpacity: 0.06,
+        shadowRadius: 7,
     },
+
     cardHeader: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: 20,
-    },
-    cardTextContainer: {
-        flex: 1,
-        paddingRight: 10,
-    },
-    cardTitle: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: '#1F2937',
-        marginBottom: 4,
-        textTransform: 'capitalize',
-    },
-    cardSubtitle: {
-        fontSize: 15,
-        color: '#6B7280',
-        fontWeight: '500',
-    },
-    iconRow: {
-        flexDirection: 'row',
-        gap: 6,
-    },
-    iconButton: {
-        padding: 6,
-        backgroundColor: '#F9FAFB',
-        borderRadius: 8,
-    },
-    startButton: {
-        backgroundColor: '#10B981',
-        paddingVertical: 14,
-        borderRadius: 12,
         alignItems: 'center',
+    },
+
+    iconContainer: {
+        width: 52,
+        height: 52,
+        borderRadius: 17,
+        backgroundColor: '#F4EEE5',
         justifyContent: 'center',
-        shadowColor: '#10B981',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-        elevation: 2,
+        alignItems: 'center',
     },
-    startButtonText: {
-        color: '#FFFFFF',
-        fontSize: 16,
+
+    titleContainer: {
+        flex: 1,
+        marginLeft: 13,
+    },
+
+    routineName: {
+        fontSize: 17,
+        fontWeight: '800',
+        color: '#17202A',
+    },
+
+    muscleGroup: {
+        fontSize: 13,
+        color: '#C69C6D',
         fontWeight: '700',
-        letterSpacing: 0.5,
+        marginTop: 4,
     },
+
+    starButton: {
+        width: 43,
+        height: 43,
+        borderRadius: 14,
+        backgroundColor: '#F9F6F0',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    infoRow: {
+        flexDirection: 'row',
+        marginTop: 17,
+    },
+
+    infoItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 20,
+    },
+
+    infoText: {
+        color: '#7B8794',
+        fontSize: 12,
+        marginLeft: 5,
+    },
+
+    separator: {
+        height: 1,
+        backgroundColor: '#EDF0F2',
+        marginVertical: 14,
+    },
+
+    actions: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+
+    actionButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 5,
+    },
+
+    actionText: {
+        color: '#17202A',
+        fontWeight: '700',
+        fontSize: 12,
+        marginLeft: 5,
+    },
+
+    deleteButton: {
+        paddingHorizontal: 5,
+    },
+
+    deleteText: {
+        color: '#B44A4A',
+        fontWeight: '700',
+        fontSize: 12,
+        marginLeft: 5,
+    },
+
+    emptyContainer: {
+        alignItems: 'center',
+        paddingTop: 70,
+        paddingHorizontal: 30,
+    },
+
+    emptyIcon: {
+        width: 85,
+        height: 85,
+        borderRadius: 28,
+        backgroundColor: '#F4EEE5',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    emptyTitle: {
+        fontSize: 19,
+        fontWeight: '800',
+        color: '#17202A',
+        marginTop: 18,
+    },
+
+    emptyText: {
+        textAlign: 'center',
+        color: '#8A949E',
+        marginTop: 7,
+        lineHeight: 20,
+    },
+
     fab: {
         position: 'absolute',
-        width: 64,
-        height: 64,
-        alignItems: 'center',
+        right: 22,
+        bottom: 22,
+        width: 62,
+        height: 62,
+        borderRadius: 21,
+        backgroundColor: '#C69C6D',
         justifyContent: 'center',
-        right: 24,
-        bottom: 30,
-        backgroundColor: '#FF6347',
-        borderRadius: 32,
-        elevation: 6,
-        shadowColor: '#FF6347',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.3,
+        alignItems: 'center',
+        elevation: 8,
+        shadowOpacity: 0.18,
         shadowRadius: 8,
     },
+
 });

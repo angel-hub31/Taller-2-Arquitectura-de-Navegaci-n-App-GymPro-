@@ -1,69 +1,67 @@
-
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StyleSheet } from 'react-native';
-import 'react-native-gesture-handler';
 
-import RoutineDetailScreen from './src/screens/RoutineDetailScreen';
-import DrawerNavigator from './src/navigators/DrawerNavigator';
-import AddRoutineScreen from './src/screens/AddRoutineScreen';
 import { RoutineProvider } from './src/context/RoutineContext';
 
+import DrawerNavigator from './src/navigators/DrawerNavigator';
+import RoutineDetailScreen from './src/screens/RoutineDetailScreen';
+import AddRoutineScreen from './src/screens/AddRoutineScreen';
 
 export type RootStackParamList = {
     HomeDrawer: undefined;
     Detail: { id: string };
-    AddRoutine: { id?: string | undefined }
-
-}
+    AddRoutine: { id?: string } | undefined;
+};
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
-
 
 export default function App() {
     return (
         <RoutineProvider>
             <NavigationContainer>
-                <Stack.Navigator>
-
+                <Stack.Navigator
+                    screenOptions={{
+                        headerStyle: {
+                            backgroundColor: '#17202A',
+                        },
+                        headerTintColor: '#FFFFFF',
+                        headerTitleStyle: {
+                            fontWeight: '700',
+                            fontSize: 18,
+                        },
+                        headerShadowVisible: false,
+                    }}
+                >
 
                     <Stack.Screen
                         name="HomeDrawer"
                         component={DrawerNavigator}
                         options={{
-                            title: ' Angel Morales'
+                            headerShown: false,
                         }}
                     />
 
                     <Stack.Screen
                         name="Detail"
                         component={RoutineDetailScreen}
-                        options={{ headerShown: true, title: 'Detalle de Rutina' }}
+                        options={{
+                            title: 'Detalle de rutina',
+                        }}
                     />
-
 
                     <Stack.Screen
                         name="AddRoutine"
                         component={AddRoutineScreen}
-                        options={{
-                            headerShown: true,
-                            title: 'Crear rutina',
-                        }}
+                        options={({ route }) => ({
+                            title: route.params?.id
+                                ? 'Editar rutina'
+                                : 'Nueva rutina',
+                        })}
                     />
-
 
                 </Stack.Navigator>
             </NavigationContainer>
         </RoutineProvider>
     );
 }
-
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-});

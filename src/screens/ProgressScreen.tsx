@@ -1,240 +1,511 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+    View,
+    Text,
+    StyleSheet,
+    ScrollView,
+} from 'react-native';
+
 import { Ionicons } from '@expo/vector-icons';
 import { useRoutines } from '../context/RoutineContext';
 
 export default function ProgressScreen() {
 
-    const { routines,deleteRoutine, toggleFeatured } = useRoutines();
+    const { routines } = useRoutines();
 
     const totalRoutines = routines.length;
-    const totalDuration = routines.reduce((acc, curr) => acc + (Number(curr.duration) || 0), 0);
-    const averageDuration = totalRoutines > 0 ? Math.round(totalDuration / totalRoutines) : 0;
+
+    const totalDuration = routines.reduce(
+        (total, routine) => total + Number(routine.duration),
+        0
+    );
+
+    const averageDuration =
+        totalRoutines > 0
+            ? Math.round(totalDuration / totalRoutines)
+            : 0;
 
     const getTopMuscleGroup = () => {
 
-        if (routines.length === 0) return 'Ninguno';
-        const counts: { [key: string]: number } = {};
-        routines.forEach(r => {
-            const group = r.muscleGroup.trim();
-            counts[group] = (counts[group] || 0) + 1;
-        });
-        let topGroup = 'Ninguno';
-        let maxCount = 0;
-        for (const [group, count] of Object.entries(counts)) {
-            if (count > maxCount) {
-                maxCount = count;
-                topGroup = group;
-            }
+        if (routines.length === 0) {
+            return 'Sin datos';
         }
-        return topGroup;
+
+        const groups: { [key: string]: number } = {};
+
+        routines.forEach((routine) => {
+            const group = routine.muscleGroup;
+
+            groups[group] = (groups[group] || 0) + 1;
+        });
+
+        return Object.keys(groups).reduce((a, b) =>
+            groups[a] > groups[b] ? a : b
+        );
     };
 
-    const featuredRoutine = routines.find(r => r.featured);
+    const topMuscleGroup = getTopMuscleGroup();
 
-    const STATS = [
-        { id: '1', title: 'Entrenamientos', value: '4/5', icon: 'barbell', color: '#FF6347' },
-        { id: '2', title: 'Racha Actual', value: '3 Días', icon: 'flame', color: '#FF8C00' },
-        { id: '3', title: 'Tiempo Total', value: '180 min', icon: 'time', color: '#4682B4' },
-        { id: '4', title: 'Volumen', value: '3200 kg', icon: 'analytics', color: '#32CD32' },
-    ];
-
+    const featuredRoutine = routines.find(
+        (routine) => routine.featured
+    );
 
     return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+            style={styles.container}
+            contentContainerStyle={styles.content}
+            showsVerticalScrollIndicator={false}
+        >
 
-                <Text style={styles.headerTitle}>Mi Progreso</Text>
-                <Text style={styles.subtitle}>Resumen dinámico de tu semana</Text>
+            {/* ENCABEZADO */}
+            <View style={styles.header}>
+                <View>
+                    <Text style={styles.smallTitle}>
+                        BIENVENIDO A GYMPRO
+                    </Text>
 
-                {/* Se ha hecho el cambio aqui: Sección visual para mostrar la rutina destacada (Actividad 4) */}
-                <View style={styles.featuredCard}>
-                    <View style={styles.featuredHeader}>
-                        <Ionicons name="star" size={20} color="#F59E0B" />
-                        <Text style={styles.featuredTitle}>Rutina Destacada Actual</Text>
-                    </View>
-                    {featuredRoutine ? (
-                        <View>
-                            <Text style={styles.featuredRoutineName}>{featuredRoutine.name}</Text>
-                            <Text style={styles.featuredRoutineDetails}> {featuredRoutine.muscleGroup}  •  ⏱️ {featuredRoutine.duration} min</Text>
-                        </View>
-                    ) : (
-                        <Text style={styles.noFeaturedText}>No hay ninguna rutina marcada como destacada.</Text>
-                    )}
-                </View>
+                    <Text style={styles.title}>
+                        Tu progreso
+                    </Text>
 
-                <View style={styles.goalCard}>
-                    <View style={styles.goalHeader}>
-                        <Text style={styles.goalTitle}>Total Registrado</Text>
-                        <Text style={styles.goalPercentage}>{totalRoutines} rutinas</Text>
-                    </View>
-
-                    <View style={styles.progressBarBackground}>
-                        <View style={[styles.progressBarFill, { width: `${Math.min(totalRoutines * 20, 100)}%` }]} />
-                    </View>
-                    <Text style={styles.goalText}>
-                        {totalRoutines > 0 ? '¡Tus datos se sincronizan automáticamente con SQLite!' : 'Agrega rutinas para calcular tu progreso.'}
+                    <Text style={styles.subtitle}>
+                        Mantén el ritmo y supera tus objetivos.
                     </Text>
                 </View>
 
-                <Text style={styles.sectionTitle}>Estadísticas Generales</Text>
+                <View style={styles.headerIcon}>
+                    <Ionicons
+                        name="barbell"
+                        size={27}
+                        color="#C69C6D"
+                    />
+                </View>
+            </View>
 
-                <View style={styles.statsGrid}>
-                    {STATS.map((stat) => (
-                        <View key={stat.id} style={styles.statCard}>
-                            <View style={[styles.iconContainer, { backgroundColor: `${stat.color}15` }]}>
-                                <Ionicons name={stat.icon as any} size={24} color={stat.color} />
-                            </View>
-                            <Text style={styles.statValue}>{stat.value}</Text>
-                            <Text style={styles.statTitle}>{stat.title}</Text>
-                        </View>
-                    ))}
+            {/* TARJETA PRINCIPAL */}
+            <View style={styles.heroCard}>
+
+                <View style={styles.heroTop}>
+                    <View>
+                        <Text style={styles.heroLabel}>
+                            ENTRENAMIENTOS
+                        </Text>
+
+                        <Text style={styles.heroNumber}>
+                            {totalRoutines}
+                        </Text>
+                    </View>
+
+                    <View style={styles.heroIcon}>
+                        <Ionicons
+                            name="fitness"
+                            size={32}
+                            color="#FFFFFF"
+                        />
+                    </View>
                 </View>
 
-            </ScrollView>
-        </SafeAreaView>
+                <Text style={styles.heroDescription}>
+                    rutinas registradas actualmente
+                </Text>
+
+                <View style={styles.progressLine}>
+                    <View
+                        style={[
+                            styles.progressFill,
+                            {
+                                width:
+                                    totalRoutines === 0
+                                        ? '0%'
+                                        : `${Math.min(totalRoutines * 20, 100)}%`,
+                            },
+                        ]}
+                    />
+                </View>
+
+            </View>
+
+            {/* ESTADÍSTICAS */}
+            <Text style={styles.sectionTitle}>
+                Estadísticas
+            </Text>
+
+            <View style={styles.statsGrid}>
+
+                <View style={styles.statCard}>
+                    <View style={styles.statIcon}>
+                        <Ionicons
+                            name="time-outline"
+                            size={22}
+                            color="#C69C6D"
+                        />
+                    </View>
+
+                    <Text style={styles.statValue}>
+                        {totalDuration}
+                    </Text>
+
+                    <Text style={styles.statLabel}>
+                        Minutos totales
+                    </Text>
+                </View>
+
+                <View style={styles.statCard}>
+                    <View style={styles.statIcon}>
+                        <Ionicons
+                            name="speedometer-outline"
+                            size={22}
+                            color="#C69C6D"
+                        />
+                    </View>
+
+                    <Text style={styles.statValue}>
+                        {averageDuration}
+                    </Text>
+
+                    <Text style={styles.statLabel}>
+                        Promedio min.
+                    </Text>
+                </View>
+
+                <View style={styles.statCard}>
+                    <View style={styles.statIcon}>
+                        <Ionicons
+                            name="body-outline"
+                            size={22}
+                            color="#C69C6D"
+                        />
+                    </View>
+
+                    <Text style={styles.statValueSmall}>
+                        {topMuscleGroup}
+                    </Text>
+
+                    <Text style={styles.statLabel}>
+                        Grupo principal
+                    </Text>
+                </View>
+
+                <View style={styles.statCard}>
+                    <View style={styles.statIcon}>
+                        <Ionicons
+                            name="star-outline"
+                            size={22}
+                            color="#C69C6D"
+                        />
+                    </View>
+
+                    <Text style={styles.statValue}>
+                        {featuredRoutine ? '1' : '0'}
+                    </Text>
+
+                    <Text style={styles.statLabel}>
+                        Destacada
+                    </Text>
+                </View>
+
+            </View>
+
+            {/* RUTINA DESTACADA */}
+            <Text style={styles.sectionTitle}>
+                Rutina destacada
+            </Text>
+
+            {featuredRoutine ? (
+
+                <View style={styles.featuredCard}>
+
+                    <View style={styles.featuredIcon}>
+                        <Ionicons
+                            name="star"
+                            size={27}
+                            color="#C69C6D"
+                        />
+                    </View>
+
+                    <View style={styles.featuredInfo}>
+
+                        <Text style={styles.featuredName}>
+                            {featuredRoutine.name}
+                        </Text>
+
+                        <Text style={styles.featuredMuscle}>
+                            {featuredRoutine.muscleGroup}
+                        </Text>
+
+                        <View style={styles.durationRow}>
+                            <Ionicons
+                                name="time-outline"
+                                size={16}
+                                color="#7B8794"
+                            />
+
+                            <Text style={styles.durationText}>
+                                {featuredRoutine.duration} minutos
+                            </Text>
+                        </View>
+
+                    </View>
+
+                </View>
+
+            ) : (
+
+                <View style={styles.emptyCard}>
+
+                    <Ionicons
+                        name="star-outline"
+                        size={35}
+                        color="#B0B8BF"
+                    />
+
+                    <Text style={styles.emptyTitle}>
+                        No tienes una rutina destacada
+                    </Text>
+
+                    <Text style={styles.emptyText}>
+                        Selecciona una rutina como favorita desde
+                        la sección de rutinas.
+                    </Text>
+
+                </View>
+            )}
+
+        </ScrollView>
     );
 }
 
-
 const styles = StyleSheet.create({
+
     container: {
         flex: 1,
-        backgroundColor: '#e7f3f5',
+        backgroundColor: '#F5F7FA',
     },
-    scrollContent: {
+
+    content: {
         padding: 20,
+        paddingBottom: 35,
     },
-    headerTitle: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#18181B',
-        marginBottom: 4,
-    },
-    subtitle: {
-        fontSize: 16,
-        color: '#71717A',
-        marginBottom: 20,
-    },
-    featuredCard: {
-        backgroundColor: '#FFFBEB',
-        borderWidth: 1.5,
-        borderColor: '#F59E0B',
-        padding: 16,
-        borderRadius: 16,
-        marginBottom: 24,
-        elevation: 2,
-    },
-    featuredHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        marginBottom: 8,
-    },
-    featuredTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#B45309',
-    },
-    featuredRoutineName: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: '#1F2937',
-        marginBottom: 2,
-    },
-    featuredRoutineDetails: {
-        fontSize: 14,
-        color: '#4B5563',
-    },
-    noFeaturedText: {
-        fontSize: 14,
-        color: '#71717A',
-        fontStyle: 'italic',
-    },
-    goalCard: {
-        backgroundColor: '#FFFFFF',
-        padding: 20,
-        borderRadius: 16,
-        marginBottom: 24,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
-    },
-    goalHeader: {
+
+    header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 12,
+        marginBottom: 22,
     },
-    goalTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#3F3F46',
+
+    smallTitle: {
+        fontSize: 11,
+        fontWeight: '800',
+        letterSpacing: 1.5,
+        color: '#C69C6D',
+        marginBottom: 5,
     },
-    goalPercentage: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#FF6347',
+
+    title: {
+        fontSize: 30,
+        fontWeight: '800',
+        color: '#17202A',
     },
-    progressBarBackground: {
-        height: 12,
-        backgroundColor: '#F4F4F5',
-        borderRadius: 6,
-        marginBottom: 12,
+
+    subtitle: {
+        marginTop: 5,
+        color: '#7B8794',
+        fontSize: 14,
+    },
+
+    headerIcon: {
+        width: 54,
+        height: 54,
+        borderRadius: 18,
+        backgroundColor: '#17202A',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    heroCard: {
+        backgroundColor: '#17202A',
+        borderRadius: 24,
+        padding: 22,
+        marginBottom: 25,
+        elevation: 6,
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+    },
+
+    heroTop: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+
+    heroLabel: {
+        color: '#B9C0C7',
+        fontSize: 11,
+        fontWeight: '700',
+        letterSpacing: 1,
+    },
+
+    heroNumber: {
+        color: '#FFFFFF',
+        fontSize: 48,
+        fontWeight: '900',
+        marginTop: 2,
+    },
+
+    heroIcon: {
+        width: 62,
+        height: 62,
+        borderRadius: 20,
+        backgroundColor: '#2A3743',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    heroDescription: {
+        color: '#B9C0C7',
+        fontSize: 13,
+        marginTop: 5,
+    },
+
+    progressLine: {
+        height: 6,
+        backgroundColor: '#35424F',
+        borderRadius: 10,
+        marginTop: 18,
         overflow: 'hidden',
     },
-    progressBarFill: {
+
+    progressFill: {
         height: '100%',
-        backgroundColor: '#FF6347',
-        borderRadius: 6,
+        backgroundColor: '#C69C6D',
+        borderRadius: 10,
     },
-    goalText: {
-        fontSize: 14,
-        color: '#71717A',
-    },
+
     sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#18181B',
-        marginBottom: 16,
+        fontSize: 19,
+        fontWeight: '800',
+        color: '#17202A',
+        marginBottom: 13,
     },
+
     statsGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        gap: 16,
+        marginBottom: 26,
     },
+
     statCard: {
-        width: '47%',
+        width: '48%',
         backgroundColor: '#FFFFFF',
+        borderRadius: 20,
         padding: 16,
-        borderRadius: 16,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
-        marginBottom: 16,
+        marginBottom: 12,
+        elevation: 3,
+        shadowOpacity: 0.06,
+        shadowRadius: 6,
     },
-    iconContainer: {
-        padding: 12,
-        borderRadius: 12,
+
+    statIcon: {
+        width: 42,
+        height: 42,
+        borderRadius: 14,
+        backgroundColor: '#F4EEE5',
+        justifyContent: 'center',
+        alignItems: 'center',
         marginBottom: 12,
     },
+
     statValue: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#18181B',
-        marginBottom: 4,
-        textAlign: 'center',
+        fontSize: 25,
+        fontWeight: '900',
+        color: '#17202A',
     },
-    statTitle: {
-        fontSize: 14,
-        color: '#71717A',
-        textAlign: 'center',
+
+    statValueSmall: {
+        fontSize: 17,
+        fontWeight: '800',
+        color: '#17202A',
+        minHeight: 30,
     },
+
+    statLabel: {
+        color: '#8A949E',
+        fontSize: 12,
+        marginTop: 3,
+    },
+
+    featuredCard: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 22,
+        padding: 18,
+        flexDirection: 'row',
+        alignItems: 'center',
+        elevation: 4,
+        shadowOpacity: 0.07,
+        shadowRadius: 7,
+    },
+
+    featuredIcon: {
+        width: 58,
+        height: 58,
+        borderRadius: 18,
+        backgroundColor: '#F4EEE5',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 15,
+    },
+
+    featuredInfo: {
+        flex: 1,
+    },
+
+    featuredName: {
+        fontSize: 18,
+        fontWeight: '800',
+        color: '#17202A',
+    },
+
+    featuredMuscle: {
+        color: '#C69C6D',
+        fontSize: 13,
+        fontWeight: '700',
+        marginTop: 4,
+    },
+
+    durationRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 8,
+    },
+
+    durationText: {
+        color: '#7B8794',
+        marginLeft: 5,
+        fontSize: 13,
+    },
+
+    emptyCard: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 22,
+        padding: 30,
+        alignItems: 'center',
+    },
+
+    emptyTitle: {
+        fontSize: 16,
+        fontWeight: '800',
+        color: '#17202A',
+        marginTop: 12,
+    },
+
+    emptyText: {
+        textAlign: 'center',
+        color: '#8A949E',
+        fontSize: 13,
+        marginTop: 6,
+        lineHeight: 19,
+    },
+
 });

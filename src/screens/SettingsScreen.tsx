@@ -1,204 +1,337 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch } from 'react-native';
-import { SafeAreaView } from "react-native-safe-area-context";
+
+import {
+    View,
+    Text,
+    StyleSheet,
+    ScrollView,
+    TouchableOpacity,
+    Switch,
+} from 'react-native';
+
 import { Ionicons } from '@expo/vector-icons';
 
 export default function SettingsScreen() {
-    const [notifications, setNotifications] = useState(true);
-    const [darkMode, setDarkMode] = useState(false);
+
+    const [notifications, setNotifications] =
+        useState(true);
+
+    const [darkMode, setDarkMode] =
+        useState(false);
 
     return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView contentContainerStyle={styles.scrollContent}>
 
-                <Text style={styles.headerTitle}>Configuración</Text>
+        <ScrollView
+            style={styles.container}
+            contentContainerStyle={styles.content}
+            showsVerticalScrollIndicator={false}
+        >
 
-                <View style={styles.profileCard}>
-                    <View style={styles.avatarCircle}>
-                        <Ionicons name="person" size={40} color="#FF6347" />
-                    </View>
-                    <View style={styles.profileInfo}>
-                        <Text style={styles.profileName}>Mi Perfil</Text>
-                        <Text style={styles.profileEmail}>usuario@entrenamiento.com</Text>
-                    </View>
-                    <TouchableOpacity style={styles.editButton}>
-                        <Ionicons name="pencil" size={20} color="#FF6347" />
-                    </TouchableOpacity>
+            {/* PERFIL */}
+            <View style={styles.profileCard}>
+
+                <View style={styles.avatar}>
+                    <Ionicons
+                        name="person"
+                        size={35}
+                        color="#C69C6D"
+                    />
                 </View>
 
-                <Text style={styles.sectionTitle}>Preferencias</Text>
-                <View style={styles.settingsCard}>
+                <View>
+                    <Text style={styles.profileName}>
+                        Angel Morales
+                    </Text>
 
-                    <View style={styles.settingItem}>
-                        <View style={styles.settingLeft}>
-                            <Ionicons name="notifications" size={22} color="#71717A" />
-                            <Text style={styles.settingText}>Notificaciones Push</Text>
-                        </View>
-                        <Switch
-                            value={notifications}
-                            onValueChange={setNotifications}
-                            trackColor={{ false: '#D4D4D8', true: '#FF6347' }}
-                            thumbColor={'#FFFFFF'}
+                    <Text style={styles.profileEmail}>
+                        Usuario GymPro
+                    </Text>
+                </View>
+
+            </View>
+
+            {/* PREFERENCIAS */}
+            <Text style={styles.sectionTitle}>
+                Preferencias
+            </Text>
+
+            <View style={styles.card}>
+
+                <View style={styles.option}>
+
+                    <View style={styles.optionIcon}>
+                        <Ionicons
+                            name="notifications-outline"
+                            size={21}
+                            color="#C69C6D"
                         />
                     </View>
 
-                    <View style={styles.separator} />
+                    <View style={styles.optionText}>
+                        <Text style={styles.optionTitle}>
+                            Notificaciones
+                        </Text>
 
-                    <View style={styles.settingItem}>
-                        <View style={styles.settingLeft}>
-                            <Ionicons name="moon" size={22} color="#71717A" />
-                            <Text style={styles.settingText}>Modo Oscuro</Text>
-                        </View>
-                        <Switch
-                            value={darkMode}
-                            onValueChange={setDarkMode}
-                            trackColor={{ false: '#D4D4D8', true: '#FF6347' }}
-                            thumbColor={'#FFFFFF'}
+                        <Text style={styles.optionDescription}>
+                            Recibir recordatorios de entrenamiento
+                        </Text>
+                    </View>
+
+                    <Switch
+                        value={notifications}
+                        onValueChange={setNotifications}
+                        trackColor={{
+                            false: '#D5DADF',
+                            true: '#C69C6D',
+                        }}
+                        thumbColor="#FFFFFF"
+                    />
+
+                </View>
+
+                <View style={styles.separator} />
+
+                <View style={styles.option}>
+
+                    <View style={styles.optionIcon}>
+                        <Ionicons
+                            name="moon-outline"
+                            size={21}
+                            color="#C69C6D"
                         />
                     </View>
+
+                    <View style={styles.optionText}>
+                        <Text style={styles.optionTitle}>
+                            Modo oscuro
+                        </Text>
+
+                        <Text style={styles.optionDescription}>
+                            Cambiar apariencia de la aplicación
+                        </Text>
+                    </View>
+
+                    <Switch
+                        value={darkMode}
+                        onValueChange={setDarkMode}
+                        trackColor={{
+                            false: '#D5DADF',
+                            true: '#C69C6D',
+                        }}
+                        thumbColor="#FFFFFF"
+                    />
+
                 </View>
 
-                <Text style={styles.sectionTitle}>Cuenta</Text>
-                <View style={styles.settingsCard}>
+            </View>
 
-                    <TouchableOpacity style={styles.settingItem}>
-                        <View style={styles.settingLeft}>
-                            <Ionicons name="lock-closed" size={22} color="#71717A" />
-                            <Text style={styles.settingText}>Cambiar Contraseña</Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={22} color="#A1A1AA" />
-                    </TouchableOpacity>
+            {/* CUENTA */}
+            <Text style={styles.sectionTitle}>
+                Cuenta
+            </Text>
 
-                    <View style={styles.separator} />
+            <View style={styles.card}>
 
-                    <TouchableOpacity style={styles.settingItem}>
-                        <View style={styles.settingLeft}>
-                            <Ionicons name="shield-checkmark" size={22} color="#71717A" />
-                            <Text style={styles.settingText}>Privacidad y Seguridad</Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={22} color="#A1A1AA" />
-                    </TouchableOpacity>
-                </View>
+                <TouchableOpacity style={styles.option}>
 
-                <TouchableOpacity style={styles.logoutButton}>
-                    <Ionicons name="log-out-outline" size={22} color="#EF4444" />
-                    <Text style={styles.logoutText}>Cerrar Sesión</Text>
+                    <View style={styles.optionIcon}>
+                        <Ionicons
+                            name="person-outline"
+                            size={21}
+                            color="#C69C6D"
+                        />
+                    </View>
+
+                    <View style={styles.optionText}>
+                        <Text style={styles.optionTitle}>
+                            Mi perfil
+                        </Text>
+
+                        <Text style={styles.optionDescription}>
+                            Administrar información personal
+                        </Text>
+                    </View>
+
+                    <Ionicons
+                        name="chevron-forward"
+                        size={20}
+                        color="#A0A8AE"
+                    />
+
                 </TouchableOpacity>
 
-            </ScrollView>
-        </SafeAreaView>
+                <View style={styles.separator} />
+
+                <TouchableOpacity style={styles.option}>
+
+                    <View
+                        style={[
+                            styles.optionIcon,
+                            styles.logoutIcon,
+                        ]}
+                    >
+                        <Ionicons
+                            name="log-out-outline"
+                            size={21}
+                            color="#B44A4A"
+                        />
+                    </View>
+
+                    <View style={styles.optionText}>
+                        <Text
+                            style={[
+                                styles.optionTitle,
+                                styles.logoutText,
+                            ]}
+                        >
+                            Cerrar sesión
+                        </Text>
+
+                        <Text style={styles.optionDescription}>
+                            Salir de la cuenta actual
+                        </Text>
+                    </View>
+
+                    <Ionicons
+                        name="chevron-forward"
+                        size={20}
+                        color="#A0A8AE"
+                    />
+
+                </TouchableOpacity>
+
+            </View>
+
+            {/* VERSION */}
+            <View style={styles.version}>
+                <Ionicons
+                    name="barbell-outline"
+                    size={17}
+                    color="#A0A8AE"
+                />
+
+                <Text style={styles.versionText}>
+                    GymPro · Tu entrenamiento, tu progreso
+                </Text>
+            </View>
+
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
+
     container: {
         flex: 1,
-        backgroundColor: '#e7f3f5',
+        backgroundColor: '#F5F7FA',
     },
-    scrollContent: {
+
+    content: {
         padding: 20,
         paddingBottom: 40,
     },
-    headerTitle: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#18181B',
-        marginBottom: 20,
-    },
 
     profileCard: {
+        backgroundColor: '#17202A',
+        borderRadius: 24,
+        padding: 20,
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#ffffff',
-        padding: 20,
-        borderRadius: 16,
-        marginBottom: 30,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
+        marginBottom: 27,
     },
-    avatarCircle: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        backgroundColor: '#FFE4E1',
+
+    avatar: {
+        width: 65,
+        height: 65,
+        borderRadius: 22,
+        backgroundColor: '#273541',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 16,
+        marginRight: 15,
     },
-    profileInfo: {
-        flex: 1,
-    },
+
     profileName: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#18181B',
+        color: '#FFFFFF',
+        fontSize: 19,
+        fontWeight: '900',
     },
+
     profileEmail: {
-        fontSize: 14,
-        color: '#71717A',
+        color: '#AEB7BE',
+        fontSize: 12,
         marginTop: 4,
-    },
-    editButton: {
-        padding: 8,
-        backgroundColor: '#FFF0EE',
-        borderRadius: 8,
     },
 
     sectionTitle: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        color: '#A1A1AA',
-        textTransform: 'uppercase',
-        marginBottom: 10,
-        marginLeft: 4,
-    },
-    settingsCard: {
-        backgroundColor: '#ffffff',
-        borderRadius: 16,
-        marginBottom: 24,
-        paddingHorizontal: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
-    },
-    settingItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: 16,
-    },
-    settingLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    settingText: {
-        fontSize: 16,
-        color: '#3F3F46',
-        marginLeft: 12,
-    },
-    separator: {
-        height: 1,
-        backgroundColor: '#F4F4F5',
+        color: '#17202A',
+        fontSize: 18,
+        fontWeight: '800',
+        marginBottom: 11,
     },
 
-    logoutButton: {
+    card: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 22,
+        paddingHorizontal: 17,
+        marginBottom: 25,
+    },
+
+    option: {
+        minHeight: 72,
         flexDirection: 'row',
         alignItems: 'center',
+    },
+
+    optionIcon: {
+        width: 44,
+        height: 44,
+        borderRadius: 14,
+        backgroundColor: '#F4EEE5',
         justifyContent: 'center',
-        backgroundColor: '#FEF2F2',
-        paddingVertical: 16,
-        borderRadius: 16,
-        marginTop: 10,
+        alignItems: 'center',
+        marginRight: 13,
     },
+
+    logoutIcon: {
+        backgroundColor: '#F8EAEA',
+    },
+
+    optionText: {
+        flex: 1,
+    },
+
+    optionTitle: {
+        color: '#17202A',
+        fontSize: 14,
+        fontWeight: '800',
+    },
+
+    optionDescription: {
+        color: '#8A949E',
+        fontSize: 11,
+        marginTop: 3,
+    },
+
     logoutText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#EF4444',
-        marginLeft: 8,
+        color: '#B44A4A',
     },
+
+    separator: {
+        height: 1,
+        backgroundColor: '#EDF0F2',
+    },
+
+    version: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 5,
+        flexDirection: 'row',
+    },
+
+    versionText: {
+        color: '#A0A8AE',
+        fontSize: 11,
+        marginLeft: 6,
+    },
+
 });
