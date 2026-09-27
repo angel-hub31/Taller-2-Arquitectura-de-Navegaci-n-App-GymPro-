@@ -16,7 +16,7 @@ export default function AddRoutineScreen({ navigation, route }: any) {
 
     useEffect(() => {
         if (idToEdit) {
-            const routineFound = routines.find(r => r.id === idToEdit);
+            const routineFound = routines.find(routines => routines.id === idToEdit);
             if (routineFound) {
                 setName(routineFound.name);
                 setMuscleGroup(routineFound.muscleGroup);
@@ -25,7 +25,7 @@ export default function AddRoutineScreen({ navigation, route }: any) {
         }
 
     },
-        [idToEdit]);
+        [idToEdit, routines]);
 
     const handleSave = () => {
         if (!name.trim() || !muscleGroup.trim() || !durationString.trim()) {
@@ -43,7 +43,7 @@ export default function AddRoutineScreen({ navigation, route }: any) {
             Alert.alert('Duración inválida', "La duración debe estar entre 10 y 180 minutos.");
             return;
         }
-        
+
         if (idToEdit) {
             updateRoutine(idToEdit, {
                 name: name.trim(),

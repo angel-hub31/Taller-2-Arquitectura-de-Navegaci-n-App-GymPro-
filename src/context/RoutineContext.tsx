@@ -30,7 +30,6 @@ export const RoutineProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }, []);
 
     const setupDatabase = async () => {
-        await initDatabase(db);
         await loadRoutines();
     };
 
