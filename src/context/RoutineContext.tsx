@@ -30,8 +30,17 @@ export const RoutineProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }, []);
 
     const setupDatabase = async () => {
+    try {
+        await initDatabase(db);
         await loadRoutines();
-    };
+
+    } catch (error) {
+        console.error(
+            'Error durante la inicialización de SQLite:',
+            error
+        );
+    }
+};
 
 
 
